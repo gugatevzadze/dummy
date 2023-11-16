@@ -30,19 +30,6 @@ class CategoryAdapter(
 
         holder.itemView.setOnClickListener {
             listener.onCategoryClick(category)
-            if (holder.itemView.isSelected) {
-                // If already selected, toggle back to the default state
-                holder.itemView.isSelected = false
-                holder.itemView.setBackgroundResource(R.drawable.category_background)
-                val hexColor = "#96A7AF"
-                val color = Color.parseColor(hexColor)
-                holder.binding.categoryName.setTextColor(color)
-            } else {
-                // If not selected, toggle to the selected state
-                holder.itemView.isSelected = true
-                holder.itemView.setBackgroundResource(R.drawable.category_background_selected)
-                holder.binding.categoryName.setTextColor(Color.WHITE)
-            }
         }
     }
 

@@ -1,7 +1,9 @@
 package com.example.homework_9
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.homework_9.databinding.ActivityMainBinding
@@ -33,7 +35,7 @@ class MainActivity : AppCompatActivity(), CategoryAdapter.OnCategoryClickListene
         Item(9, "model_1", "Belt suit blazer", "$120", "\uD83D\uDD25 Category2"),
         Item(10, "model_2", "Belt suit blazer", "$120", "\uD83E\uDD8D Category3")
     )
-
+    //currently selected category. its not because when you first launch the program nothing is chosen
     private var selectedCategory: Category? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,30 +43,55 @@ class MainActivity : AppCompatActivity(), CategoryAdapter.OnCategoryClickListene
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //category adapter
         categoryAdapter = CategoryAdapter(categoryList, this)
-        binding.categoryView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.categoryView.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.categoryView.adapter = categoryAdapter
 
+        //item adapter
         itemAdapter = ItemAdapter()
         binding.itemView.layoutManager = GridLayoutManager(this, 2)
         binding.itemView.adapter = itemAdapter
 
-        // Set up the initial state (show all items)
+        //setting up initial state
         updateItemAdapter()
     }
 
+    //overriding the interface
     override fun onCategoryClick(category: Category) {
-        // Update the selected category and refresh the item adapter
+        //update the selected category and refresh the item adapter
         selectedCategory = category
         updateItemAdapter()
+
+        //ui manipulations. for selected item in category list, the background changes and the text color
+        //when anotehr item is pressed everything is restored
+        val selectedPosition = categoryList.indexOf(category)
+        for (i in categoryList.indices) {
+            val holder =
+                binding.categoryView.findViewHolderForAdapterPosition(i) as CategoryAdapter.CategoryViewHolder?
+            if (i == selectedPosition) {
+                holder?.itemView?.isSelected = true
+                holder?.itemView?.setBackgroundResource(R.drawable.category_background_selected)
+                val color = ContextCompat.getColor(this, android.R.color.white)
+                holder?.binding?.categoryName?.setTextColor(color)
+            } else {
+                holder?.itemView?.isSelected = false
+                holder?.itemView?.setBackgroundResource(R.drawable.category_background)
+                val hexColor = "#96A7AF"
+                val color = Color.parseColor(hexColor)
+                holder?.binding?.categoryName?.setTextColor(color)
+            }
+        }
     }
 
+    //method to update the item adapter based on the selected category
     private fun updateItemAdapter() {
         val filteredItems = if (selectedCategory == null || selectedCategory!!.name == "All") {
-            // No category selected or "All" selected, show all items
+            //showing all categories together (either when "all" is selected or none - inital state)
             itemList
         } else {
-            // Filter items based on the selected category
+            //filtering items based on category
             itemList.filter { it.category == selectedCategory!!.name }
         }
         itemAdapter.setData(filteredItems)
